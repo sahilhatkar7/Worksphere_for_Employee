@@ -8,7 +8,26 @@ import {
   CheckCheck,
   Loader2,
   ExternalLink,
+  X,
+  Circle,
+  BellRing,
+  RefreshCw,
 } from "lucide-react";
+
+function formatNotificationDate(value) {
+  if (!value) return "";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  return date.toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
 export default function NotificationBell() {
   const [notifications, setNotifications] = useState([]);
@@ -31,8 +50,8 @@ export default function NotificationBell() {
         throw new Error(data.message || "Failed to load notifications");
       }
 
-      setNotifications(data.notifications);
-      setUnreadCount(data.unreadCount);
+      setNotifications(data.notifications || []);
+      setUnreadCount(data.unreadCount || 0);
       setError("");
     } catch (err) {
       if (err.name !== "AbortError") {
@@ -45,17 +64,17 @@ export default function NotificationBell() {
     }
   }, []);
 
-  useEffect(() => {
-    const controller = new AbortController();
+ useEffect(() => {
+  const controller = new AbortController();
 
-    async function loadNotifications() {
-      await fetchNotifications(controller.signal);
+  Promise.resolve().then(() => {
+    if (!controller.signal.aborted) {
+      fetchNotifications(controller.signal);
     }
+  });
 
-    loadNotifications();
-
-    return () => controller.abort();
-  }, [fetchNotifications]);
+  return () => controller.abort();
+}, [fetchNotifications]);
 
   async function markAsRead(notificationId) {
     try {
@@ -111,144 +130,239 @@ export default function NotificationBell() {
 
   return (
     <div className="relative">
+      {/* Notification Bell */}
       <button
         type="button"
         aria-label={`Notifications, ${unreadCount} unread`}
         aria-expanded={isOpen}
         onClick={() => setIsOpen((previous) => !previous)}
-        className="relative rounded-xl p-2.5 text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+        className={`relative flex h-10 w-10 items-center justify-center rounded-xl border transition duration-200 ${
+          isOpen
+            ? "border-violet-400/30 bg-violet-500/15 text-violet-300"
+            : "border-white/10 bg-white/[0.04] text-slate-400 hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
+        }`}
       >
-        <Bell size={20} />
+        <Bell size={19} />
 
         {unreadCount > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-            {unreadCount > 99 ? "99+" : unreadCount}
-          </span>
+          <>
+            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-[#080d1b] bg-gradient-to-r from-violet-500 to-blue-500 px-1 text-[10px] font-bold text-white shadow-lg shadow-violet-500/30">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+            <span className="absolute right-1.5 top-1.5 h-2 w-2 animate-ping rounded-full bg-violet-400 opacity-50" />
+          </>
         )}
       </button>
 
+      {/* Notification Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 top-14 z-50 w-[min(360px,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
-          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4">
-            <div>
-              <h3 className="font-semibold text-slate-900">
-                Notifications
-              </h3>
-              <p className="mt-1 text-xs text-slate-500">
-                {unreadCount} unread notifications
-              </p>
-            </div>
+        <>
+          <button
+            type="button"
+            aria-label="Close notifications"
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 z-40 cursor-default bg-transparent"
+          />
 
-            {unreadCount > 0 && (
+          <div className="absolute right-0 top-14 z-50 w-[min(390px,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-white/10 bg-[#111b31]/95 shadow-2xl shadow-black/50 backdrop-blur-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-white/[0.08] bg-gradient-to-r from-violet-500/[0.08] to-blue-500/[0.06] px-5 py-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-violet-400/20 bg-violet-500/10 text-violet-300">
+                  <BellRing size={19} />
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-bold text-white">
+                    Notifications
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-400">
+                    {unreadCount} unread notifications
+                  </p>
+                </div>
+              </div>
+
               <button
                 type="button"
-                disabled={updating}
-                onClick={markAllAsRead}
-                className="flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 disabled:opacity-50"
+                onClick={() => setIsOpen(false)}
+                className="rounded-lg p-2 text-slate-500 transition hover:bg-white/[0.07] hover:text-white"
+                aria-label="Close"
               >
-                <CheckCheck size={15} />
-                Mark all read
+                <X size={17} />
               </button>
-            )}
-          </div>
+            </div>
 
-          {error && (
-            <p className="px-4 py-3 text-xs text-red-600">
-              {error}
-            </p>
-          )}
+            {/* Actions */}
+            <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
+              <span className="text-xs font-medium text-slate-500">
+                Recent activity
+              </span>
 
-          <div className="max-h-96 overflow-y-auto">
-            {loading ? (
-              <div className="flex items-center justify-center gap-2 py-10 text-sm text-slate-500">
-                <Loader2 size={18} className="animate-spin" />
-                Loading notifications...
-              </div>
-            ) : notifications.length === 0 ? (
-              <div className="px-5 py-10 text-center">
-                <Bell className="mx-auto text-slate-300" size={30} />
-                <p className="mt-3 text-sm font-semibold text-slate-700">
-                  No notifications yet
-                </p>
-                <p className="mt-1 text-xs text-slate-500">
-                  You&apos;re all caught up!
-                </p>
-              </div>
-            ) : (
-              notifications.map((notification) => (
-                <div
-                  key={notification.id}
-                  className={`border-b border-slate-100 px-4 py-4 transition hover:bg-slate-50 ${
-                    !notification.isRead ? "bg-indigo-50/40" : ""
-                  }`}
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() =>
+                    fetchNotifications(new AbortController().signal)
+                  }
+                  className="flex items-center gap-1.5 text-xs font-medium text-slate-400 transition hover:text-white disabled:opacity-50"
+                  title="Refresh notifications"
                 >
-                  <div className="flex gap-3">
-                    <div
-                      className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${
-                        notification.isRead
-                          ? "bg-slate-300"
-                          : "bg-indigo-600"
-                      }`}
-                    />
+                  <RefreshCw
+                    size={13}
+                    className={loading ? "animate-spin" : ""}
+                  />
+                  Refresh
+                </button>
 
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-slate-800">
-                        {notification.title}
-                      </p>
+                {unreadCount > 0 && (
+                  <button
+                    type="button"
+                    disabled={updating}
+                    onClick={markAllAsRead}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-violet-300 transition hover:text-violet-200 disabled:opacity-50"
+                  >
+                    {updating ? (
+                      <Loader2 size={13} className="animate-spin" />
+                    ) : (
+                      <CheckCheck size={14} />
+                    )}
+                    Mark all read
+                  </button>
+                )}
+              </div>
+            </div>
 
-                      <p className="mt-1 text-xs leading-5 text-slate-500">
-                        {notification.message}
-                      </p>
+            {/* Error */}
+            {error && (
+              <div className="mx-4 mt-3 rounded-xl border border-rose-400/20 bg-rose-500/10 px-3 py-2.5">
+                <p className="text-xs text-rose-300">{error}</p>
+              </div>
+            )}
 
-                      <div className="mt-3 flex items-center justify-between gap-2">
-                        <span className="text-[11px] text-slate-400">
-                          {new Date(notification.createdAt).toLocaleString()}
-                        </span>
+            {/* Notification List */}
+            <div className="max-h-[390px] overflow-y-auto">
+              {loading ? (
+                <div className="flex flex-col items-center justify-center gap-3 py-14">
+                  <Loader2
+                    size={26}
+                    className="animate-spin text-violet-400"
+                  />
+                  <p className="text-xs text-slate-500">
+                    Loading notifications...
+                  </p>
+                </div>
+              ) : notifications.length === 0 ? (
+                <div className="px-5 py-14 text-center">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-slate-500">
+                    <Bell size={25} />
+                  </div>
 
-                        <div className="flex items-center gap-3">
+                  <h4 className="mt-4 text-sm font-semibold text-white">
+                    No notifications yet
+                  </h4>
+
+                  <p className="mt-1 text-xs text-slate-500">
+                    You&apos;re all caught up!
+                  </p>
+                </div>
+              ) : (
+                notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={`group border-b border-white/[0.05] px-5 py-4 transition duration-200 hover:bg-white/[0.035] ${
+                      !notification.isRead
+                        ? "bg-violet-500/[0.045]"
+                        : ""
+                    }`}
+                  >
+                    <div className="flex gap-3">
+                      <div className="relative mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.04] text-slate-400">
+                        <Bell size={16} />
+
+                        {!notification.isRead && (
+                          <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#111b31] bg-violet-400" />
+                        )}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <p
+                            className={`text-sm leading-5 ${
+                              notification.isRead
+                                ? "font-medium text-slate-300"
+                                : "font-semibold text-white"
+                            }`}
+                          >
+                            {notification.title}
+                          </p>
+
                           {!notification.isRead && (
-                            <button
-                              type="button"
-                              disabled={updating}
-                              onClick={() => markAsRead(notification.id)}
-                              className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 disabled:opacity-50"
-                            >
-                              Mark read
-                            </button>
+                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-violet-400" />
                           )}
+                        </div>
 
-                          {notification.link && (
-                            <Link
-                              href={notification.link}
-                              onClick={() => {
-                                if (!notification.isRead) {
-                                  markAsRead(notification.id);
-                                }
-                              }}
-                              className="flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-indigo-600"
-                            >
-                              Open <ExternalLink size={12} />
-                            </Link>
-                          )}
+                        <p className="mt-1.5 text-xs leading-5 text-slate-400">
+                          {notification.message}
+                        </p>
+
+                        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                          <span className="text-[10px] text-slate-600">
+                            {formatNotificationDate(notification.createdAt)}
+                          </span>
+
+                          <div className="flex items-center gap-3">
+                            {!notification.isRead && (
+                              <button
+                                type="button"
+                                disabled={updating}
+                                onClick={() => markAsRead(notification.id)}
+                                className="text-[11px] font-semibold text-violet-300 transition hover:text-violet-200 disabled:opacity-50"
+                              >
+                                Mark read
+                              </button>
+                            )}
+
+                            {notification.link && (
+                              <Link
+                                href={notification.link}
+                                onClick={() => {
+                                  if (!notification.isRead) {
+                                    markAsRead(notification.id);
+                                  }
+                                }}
+                                className="flex items-center gap-1 text-[11px] font-semibold text-slate-400 transition hover:text-blue-300"
+                              >
+                                Open
+                                <ExternalLink size={12} />
+                              </Link>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))
-            )}
-          </div>
+                ))
+              )}
+            </div>
 
-          <div className="border-t border-slate-100 px-4 py-3">
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="w-full text-center text-xs font-semibold text-slate-500 hover:text-slate-800"
-            >
-              Close
-            </button>
+            {/* Footer */}
+            <div className="flex items-center justify-between border-t border-white/[0.08] bg-white/[0.02] px-5 py-3">
+              <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                <Circle size={7} className="fill-emerald-400 text-emerald-400" />
+                WorkSphere Updates
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="text-xs font-semibold text-slate-400 transition hover:text-white"
+              >
+                Close
+              </button>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

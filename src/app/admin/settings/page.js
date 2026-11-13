@@ -15,6 +15,9 @@ import {
   LoaderCircle,
   CheckCircle2,
   AlertCircle,
+  Settings,
+  Sparkles,
+  KeyRound,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -32,7 +35,7 @@ function PasswordField({
     <div>
       <label
         htmlFor={name}
-        className="mb-2 block text-sm font-semibold text-slate-700"
+        className="mb-2 block text-sm font-medium text-slate-300"
       >
         {label}
       </label>
@@ -46,13 +49,13 @@ function PasswordField({
           onChange={onChange}
           placeholder={placeholder}
           maxLength={128}
-          className="w-full rounded-xl border border-slate-200 px-4 py-3 pr-12 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+          className="w-full rounded-xl border border-white/10 bg-[#0a1325]/80 px-4 py-3 pr-12 text-sm text-white placeholder:text-slate-600 outline-none transition focus:border-violet-400/50 focus:ring-2 focus:ring-violet-500/10"
         />
 
         <button
           type="button"
           onClick={() => onToggle(field)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+          className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-slate-500 transition hover:text-violet-300"
           aria-label={showPassword ? "Hide password" : "Show password"}
         >
           {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -200,83 +203,106 @@ export default function AdminSettingsPage() {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50">
-        <div className="flex items-center gap-3 text-slate-500">
-          <LoaderCircle size={22} className="animate-spin" />
-          Loading Admin Settings...
+      <main className="flex min-h-screen items-center justify-center bg-[#080d1b]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10">
+            <LoaderCircle size={26} className="animate-spin text-violet-400" />
+          </div>
+          <p className="text-sm font-medium text-slate-400">
+            Loading Admin Settings...
+          </p>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
-          <div>
-            <h1 className="text-xl font-bold text-slate-900">
-              WorkSphere
-            </h1>
-            <p className="text-xs text-slate-500">
-              Admin Profile Settings
-            </p>
+    <main className="min-h-screen bg-[#080d1b] text-white">
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-violet-600/10 blur-[120px]" />
+        <div className="absolute -right-40 top-40 h-96 w-96 rounded-full bg-blue-600/10 blur-[120px]" />
+        <div className="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-cyan-500/[0.06] blur-[120px]" />
+      </div>
+
+      <header className="relative z-10 border-b border-white/[0.07] bg-[#0b1324]/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-violet-400/20 bg-gradient-to-br from-violet-500/20 to-blue-500/10 text-violet-300">
+              <Settings size={21} />
+            </div>
+
+            <div>
+              <h1 className="text-lg font-bold tracking-tight text-white">
+                WorkSphere
+              </h1>
+              <p className="text-xs text-slate-500">Administration Panel</p>
+            </div>
           </div>
 
           <Link
             href="/admin"
-            className="flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+            className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-xs font-semibold text-slate-300 transition hover:border-violet-400/30 hover:bg-violet-500/10 hover:text-white sm:px-4 sm:text-sm"
           >
-            <ArrowLeft size={17} />
-            Back to Dashboard
+            <ArrowLeft size={16} />
+            <span>Dashboard</span>
           </Link>
         </div>
       </header>
 
-      <div className="mx-auto max-w-4xl px-5 py-8">
+      <div className="relative z-10 mx-auto max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
         <div className="mb-8">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700">
-            <ShieldCheck size={15} />
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1.5 text-[11px] font-bold tracking-wider text-violet-300">
+            <ShieldCheck size={14} />
             ADMINISTRATOR
           </div>
 
-          <h2 className="text-3xl font-bold text-slate-900">
-            Profile Settings
-          </h2>
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                Account Settings
+              </h2>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-400">
+                Manage your administrator profile, personal information and
+                account security from one place.
+              </p>
+            </div>
 
-          <p className="mt-2 text-sm text-slate-500">
-            Manage your account information and password.
-          </p>
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <Sparkles size={15} className="text-violet-400" />
+              Secure account management
+            </div>
+          </div>
         </div>
 
         {error && (
-          <div className="mb-6 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            <AlertCircle size={19} />
-            {error}
+          <div className="mb-6 flex items-start gap-3 rounded-xl border border-rose-400/20 bg-rose-500/10 p-4 text-sm text-rose-300">
+            <AlertCircle size={19} className="mt-0.5 shrink-0" />
+            <p>{error}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="flex items-center gap-3 border-b border-slate-100 px-6 py-5">
-              <div className="rounded-xl bg-indigo-50 p-3 text-indigo-600">
+          <section className="overflow-hidden rounded-2xl border border-white/10 bg-[#101a30]/75 shadow-xl shadow-black/10 backdrop-blur-xl">
+            <div className="flex items-center gap-4 border-b border-white/[0.07] px-5 py-5 sm:px-7">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-violet-400/20 bg-violet-500/10 text-violet-300">
                 <UserRound size={21} />
               </div>
 
               <div>
-                <h3 className="font-bold text-slate-900">
+                <h3 className="font-semibold text-white">
                   Personal Information
                 </h3>
-                <p className="text-sm text-slate-500">
+                <p className="mt-1 text-xs text-slate-500">
                   Update your administrator account details.
                 </p>
               </div>
             </div>
 
-            <div className="space-y-5 p-6">
+            <div className="space-y-5 p-5 sm:p-7">
               <div>
                 <label
                   htmlFor="fullName"
-                  className="mb-2 block text-sm font-semibold text-slate-700"
+                  className="mb-2 block text-sm font-medium text-slate-300"
                 >
                   Full Name
                 </label>
@@ -291,22 +317,22 @@ export default function AdminSettingsPage() {
                   value={profile.fullName}
                   onChange={handleProfileChange}
                   placeholder="Enter your full name"
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                  className="w-full rounded-xl border border-white/10 bg-[#0a1325]/80 px-4 py-3 text-sm text-white placeholder:text-slate-600 outline-none transition focus:border-violet-400/50 focus:ring-2 focus:ring-violet-500/10"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="email"
-                  className="mb-2 block text-sm font-semibold text-slate-700"
+                  className="mb-2 block text-sm font-medium text-slate-300"
                 >
                   Email Address
                 </label>
 
                 <div className="relative">
                   <Mail
-                    size={18}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                    size={17}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
                   />
 
                   <input
@@ -318,30 +344,28 @@ export default function AdminSettingsPage() {
                     value={profile.email}
                     onChange={handleProfileChange}
                     placeholder="Enter your email"
-                    className="w-full rounded-xl border border-slate-200 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                    className="w-full rounded-xl border border-white/10 bg-[#0a1325]/80 py-3 pl-11 pr-4 text-sm text-white placeholder:text-slate-600 outline-none transition focus:border-violet-400/50 focus:ring-2 focus:ring-violet-500/10"
                   />
                 </div>
               </div>
             </div>
           </section>
 
-          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div className="flex items-center gap-3 border-b border-slate-100 px-6 py-5">
-              <div className="rounded-xl bg-amber-50 p-3 text-amber-600">
+          <section className="overflow-hidden rounded-2xl border border-white/10 bg-[#101a30]/75 shadow-xl shadow-black/10 backdrop-blur-xl">
+            <div className="flex items-center gap-4 border-b border-white/[0.07] px-5 py-5 sm:px-7">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-cyan-400/20 bg-cyan-500/10 text-cyan-300">
                 <LockKeyhole size={21} />
               </div>
 
               <div>
-                <h3 className="font-bold text-slate-900">
-                  Change Password
-                </h3>
-                <p className="text-sm text-slate-500">
-                  Leave new password fields empty if you do not want to change it.
+                <h3 className="font-semibold text-white">Change Password</h3>
+                <p className="mt-1 text-xs text-slate-500">
+                  Keep your administrator account protected.
                 </p>
               </div>
             </div>
 
-            <div className="space-y-5 p-6">
+            <div className="space-y-5 p-5 sm:p-7">
               <PasswordField
                 label="Current Password"
                 name="currentPassword"
@@ -353,38 +377,45 @@ export default function AdminSettingsPage() {
                 onChange={handlePasswordChange}
               />
 
-              <PasswordField
-                label="New Password"
-                name="newPassword"
-                value={passwords.newPassword}
-                field="new"
-                placeholder="Enter new password (minimum 8 characters)"
-                showPassword={showPasswords.new}
-                onToggle={togglePassword}
-                onChange={handlePasswordChange}
-              />
+              <div className="grid gap-5 md:grid-cols-2">
+                <PasswordField
+                  label="New Password"
+                  name="newPassword"
+                  value={passwords.newPassword}
+                  field="new"
+                  placeholder="Minimum 8 characters"
+                  showPassword={showPasswords.new}
+                  onToggle={togglePassword}
+                  onChange={handlePasswordChange}
+                />
 
-              <PasswordField
-                label="Confirm New Password"
-                name="confirmPassword"
-                value={passwords.confirmPassword}
-                field="confirm"
-                placeholder="Re-enter new password"
-                showPassword={showPasswords.confirm}
-                onToggle={togglePassword}
-                onChange={handlePasswordChange}
-              />
+                <PasswordField
+                  label="Confirm New Password"
+                  name="confirmPassword"
+                  value={passwords.confirmPassword}
+                  field="confirm"
+                  placeholder="Re-enter new password"
+                  showPassword={showPasswords.confirm}
+                  onToggle={togglePassword}
+                  onChange={handlePasswordChange}
+                />
+              </div>
 
-              <p className="text-xs text-slate-400">
-                Your current password is required to save any profile changes.
-              </p>
+              <div className="flex items-start gap-3 rounded-xl border border-cyan-400/10 bg-cyan-500/[0.05] p-4">
+                <KeyRound size={17} className="mt-0.5 shrink-0 text-cyan-300" />
+                <p className="text-xs leading-5 text-slate-400">
+                  Leave the new password fields empty if you do not want to
+                  change your password. Your current password is required to
+                  save profile changes.
+                </p>
+              </div>
             </div>
           </section>
 
           <div className="flex flex-col-reverse justify-end gap-3 sm:flex-row">
             <Link
               href="/admin"
-              className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-center text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+              className="rounded-xl border border-white/10 bg-white/[0.04] px-6 py-3 text-center text-sm font-semibold text-slate-300 transition hover:bg-white/[0.08] hover:text-white"
             >
               Cancel
             </Link>
@@ -392,7 +423,7 @@ export default function AdminSettingsPage() {
             <button
               type="submit"
               disabled={saving}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-900/25 transition hover:from-violet-500 hover:to-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? (
                 <LoaderCircle size={18} className="animate-spin" />
@@ -405,13 +436,25 @@ export default function AdminSettingsPage() {
           </div>
         </form>
 
-        <div className="mt-6 flex items-start gap-3 rounded-xl border border-green-100 bg-green-50 p-4 text-sm text-green-800">
-          <CheckCircle2 size={19} className="mt-0.5 shrink-0" />
-          <p>
-            Your account information is protected. Your current password is
-            verified before profile changes are saved.
-          </p>
+        <div className="mt-6 flex items-start gap-3 rounded-xl border border-emerald-400/15 bg-emerald-500/[0.06] p-4">
+          <CheckCircle2
+            size={19}
+            className="mt-0.5 shrink-0 text-emerald-400"
+          />
+          <div>
+            <p className="text-sm font-semibold text-emerald-300">
+              Your account is protected
+            </p>
+            <p className="mt-1 text-xs leading-5 text-slate-400">
+              Your current password is verified before profile changes are
+              saved. Keep your login credentials private.
+            </p>
+          </div>
         </div>
+
+        <p className="mt-8 text-center text-xs text-slate-600">
+          WorkSphere Administration · Account Settings
+        </p>
       </div>
     </main>
   );

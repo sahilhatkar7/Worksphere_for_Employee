@@ -3,7 +3,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -17,14 +16,14 @@ import {
   ArrowRight,
   CheckCircle2,
   Users,
+  Sparkles,
+  LoaderCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import { registerSchema } from "@/lib/validations/auth";
 
 export default function RegisterPage() {
-  const router = useRouter();
-
   const [roles, setRoles] = useState([]);
   const [rolesLoading, setRolesLoading] = useState(true);
   const [rolesError, setRolesError] = useState("");
@@ -48,7 +47,6 @@ export default function RegisterPage() {
     },
   });
 
-  // Fetch available registration roles from the backend.
   useEffect(() => {
     const controller = new AbortController();
 
@@ -82,7 +80,6 @@ export default function RegisterPage() {
     return () => controller.abort();
   }, []);
 
-  // Submit registration details.
   async function onSubmit(data) {
     try {
       setIsLoading(true);
@@ -113,41 +110,46 @@ export default function RegisterPage() {
   }
 
   const inputClass =
-    "h-12 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10";
+    "h-12 w-full rounded-xl border border-white/[0.09] bg-[#0b1324]/80 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-violet-400/60 focus:bg-[#111d33] focus:ring-4 focus:ring-violet-500/10";
 
-  // Registration success screen.
+  const labelClass =
+    "mb-2 block text-xs font-semibold tracking-wide text-slate-300";
+
   if (registrationComplete) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#f5f7fb] px-5 py-12">
-        <div className="w-full max-w-md rounded-3xl border border-slate-100 bg-white p-8 text-center shadow-xl shadow-slate-200/50 sm:p-10">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-50">
-            <CheckCircle2 size={42} className="text-green-600" />
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#080d1b] px-5 py-12 text-white">
+        <div className="pointer-events-none absolute -left-32 top-0 h-96 w-96 rounded-full bg-violet-600/15 blur-[120px]" />
+        <div className="pointer-events-none absolute -bottom-32 -right-20 h-96 w-96 rounded-full bg-blue-600/15 blur-[120px]" />
+
+        <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-[#101a30]/85 p-8 text-center shadow-2xl shadow-black/30 backdrop-blur-2xl sm:p-10">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl border border-emerald-400/20 bg-emerald-400/10">
+            <CheckCircle2 size={42} className="text-emerald-400" />
           </div>
 
-          <h1 className="mt-6 text-2xl font-bold text-slate-900">
+          <h1 className="mt-6 text-2xl font-bold text-white">
             Registration Successful!
           </h1>
 
-          <p className="mt-4 text-sm leading-7 text-slate-500">
-            Your WorkSphere account has been created successfully.
-            Your account is currently waiting for Admin approval.
+          <p className="mt-4 text-sm leading-7 text-slate-400">
+            Your WorkSphere account has been created successfully. Your
+            account is currently waiting for Admin approval.
           </p>
 
-          <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-left">
-            <div className="flex items-center gap-2 text-sm font-semibold text-amber-800">
+          <div className="mt-6 rounded-2xl border border-amber-400/20 bg-amber-400/[0.07] p-4 text-left">
+            <div className="flex items-center gap-2 text-sm font-semibold text-amber-300">
               <ShieldCheck size={18} />
               Approval Pending
             </div>
 
-            <p className="mt-2 text-xs leading-6 text-amber-700">
-              You can sign in after the Admin reviews and approves
-              your registration request.
+            <p className="mt-2 text-xs leading-6 text-amber-200/70">
+              You can sign in after the Admin reviews and approves your
+              registration request.
             </p>
           </div>
 
           <Link
             href="/"
-            className="mt-8 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 text-sm font-semibold text-white transition hover:bg-blue-700"
+            className="mt-8 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 text-sm font-semibold text-white shadow-lg shadow-violet-950/30 transition hover:brightness-110"
           >
             Go to Login
             <ArrowRight size={18} />
@@ -158,17 +160,15 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f7fb] text-slate-800">
+    <main className="min-h-screen overflow-hidden bg-[#080d1b] text-white">
       <div className="grid min-h-screen lg:grid-cols-2">
-
-        {/* LEFT SECTION */}
-        <section className="relative hidden overflow-hidden bg-[#101c3a] px-12 py-12 text-white lg:flex lg:flex-col lg:justify-between xl:px-20">
-
-          <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl" />
-          <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-indigo-500/20 blur-3xl" />
+        {/* LEFT BRAND SECTION */}
+        <section className="relative hidden overflow-hidden border-r border-white/[0.06] bg-[#0c1426] px-12 py-12 lg:flex lg:flex-col lg:justify-between xl:px-20">
+          <div className="pointer-events-none absolute -right-32 -top-32 h-[450px] w-[450px] rounded-full bg-violet-600/15 blur-[120px]" />
+          <div className="pointer-events-none absolute -bottom-32 -left-32 h-[450px] w-[450px] rounded-full bg-blue-600/15 blur-[120px]" />
 
           <Link href="/" className="relative z-10 flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-500">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-violet-500 to-blue-600 shadow-lg shadow-violet-950/40">
               <Activity size={25} />
             </div>
 
@@ -178,8 +178,8 @@ export default function RegisterPage() {
           </Link>
 
           <div className="relative z-10 max-w-xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-300/20 bg-white/10 px-4 py-2 text-sm text-blue-100">
-              <Users size={16} />
+            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-violet-400/20 bg-violet-400/10 px-4 py-2 text-xs font-semibold text-violet-300">
+              <Sparkles size={15} />
               Join Our Workforce
             </div>
 
@@ -188,19 +188,17 @@ export default function RegisterPage() {
               <br />
               Every team.
               <br />
-              <span className="text-blue-400">
+              <span className="bg-gradient-to-r from-violet-400 via-blue-400 to-cyan-300 bg-clip-text text-transparent">
                 Better collaboration.
               </span>
             </h1>
 
-            <p className="mt-6 max-w-md text-base leading-8 text-slate-300">
-              Create your account and become part of a connected
-              workplace where teams collaborate and projects move
-              forward.
+            <p className="mt-6 max-w-md text-sm leading-8 text-slate-400 xl:text-base">
+              Create your account and become part of a connected workplace
+              where teams collaborate and projects move forward.
             </p>
 
             <div className="mt-10 space-y-5">
-
               {[
                 "Centralized employee management",
                 "Organized projects and tasks",
@@ -208,81 +206,88 @@ export default function RegisterPage() {
                 "Secure account approval system",
               ].map((feature) => (
                 <div key={feature} className="flex items-center gap-3">
-                  <CheckCircle2 size={19} className="text-blue-400" />
-                  <span className="text-sm text-slate-200">
-                    {feature}
-                  </span>
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-400/10">
+                    <CheckCircle2 size={16} className="text-emerald-400" />
+                  </div>
+                  <span className="text-sm text-slate-300">{feature}</span>
                 </div>
               ))}
+            </div>
 
+            <div className="mt-12 rounded-2xl border border-white/[0.07] bg-white/[0.035] p-5 backdrop-blur-xl">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-300">
+                  <Users size={20} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">
+                    Built for connected teams
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    One platform. Multiple roles. Shared progress.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="relative z-10 text-sm text-slate-400">
+          <div className="relative z-10 text-xs text-slate-600">
             © 2026 WorkSphere. All rights reserved.
           </div>
         </section>
 
-        {/* RIGHT SECTION */}
-        <section className="flex items-center justify-center px-5 py-10 sm:px-10">
+        {/* RIGHT REGISTRATION SECTION */}
+        <section className="relative flex items-center justify-center overflow-y-auto px-5 py-8 sm:px-10 lg:px-12">
+          <div className="pointer-events-none absolute -right-32 top-0 h-80 w-80 rounded-full bg-violet-600/10 blur-[120px]" />
 
-          <div className="w-full max-w-md">
-
+          <div className="relative w-full max-w-md">
             {/* MOBILE BRAND */}
             <Link
               href="/"
               className="mb-8 flex items-center justify-center gap-3 lg:hidden"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-white">
-                <Activity size={25} />
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-blue-600">
+                <Activity size={23} />
               </div>
-
-              <span className="text-2xl font-bold text-slate-900">
-                WorkSphere
-              </span>
+              <span className="text-2xl font-bold">WorkSphere</span>
             </Link>
 
             <div className="mb-7">
-              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-blue-600">
+              <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-violet-400">
+                <Sparkles size={14} />
                 Get Started
-              </p>
+              </div>
 
-              <h2 className="text-3xl font-bold tracking-tight text-slate-900">
+              <h2 className="text-3xl font-bold tracking-tight text-white">
                 Create your account
               </h2>
 
-              <p className="mt-3 text-sm leading-6 text-slate-500">
+              <p className="mt-3 text-sm leading-6 text-slate-400">
                 Enter your details and request your preferred role.
               </p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-
               {/* FULL NAME */}
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  Full Name
-                </label>
-
+                <label className={labelClass}>Full Name</label>
                 <div className="relative">
                   <User
                     size={18}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
                   />
-
                   <input
                     type="text"
                     placeholder="Enter your full name"
                     autoComplete="name"
                     {...register("fullName")}
                     className={`${inputClass} ${
-                      errors.fullName ? "border-red-400" : ""
+                      errors.fullName ? "border-red-400/70" : ""
                     }`}
                   />
                 </div>
-
                 {errors.fullName && (
-                  <p className="mt-1 text-xs text-red-500">
+                  <p className="mt-1.5 text-xs text-red-400">
                     {errors.fullName.message}
                   </p>
                 )}
@@ -290,29 +295,24 @@ export default function RegisterPage() {
 
               {/* EMAIL */}
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  Email Address
-                </label>
-
+                <label className={labelClass}>Email Address</label>
                 <div className="relative">
                   <Mail
                     size={18}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
                   />
-
                   <input
                     type="email"
                     placeholder="you@example.com"
                     autoComplete="email"
                     {...register("email")}
                     className={`${inputClass} ${
-                      errors.email ? "border-red-400" : ""
+                      errors.email ? "border-red-400/70" : ""
                     }`}
                   />
                 </div>
-
                 {errors.email && (
-                  <p className="mt-1 text-xs text-red-500">
+                  <p className="mt-1.5 text-xs text-red-400">
                     {errors.email.message}
                   </p>
                 )}
@@ -320,22 +320,19 @@ export default function RegisterPage() {
 
               {/* ROLE */}
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  Requested Role
-                </label>
-
+                <label className={labelClass}>Requested Role</label>
                 <select
                   {...register("requestedRoleId", {
                     valueAsNumber: true,
                   })}
                   disabled={rolesLoading || !!rolesError}
-                  className={`h-12 w-full rounded-xl border bg-white px-4 text-sm text-slate-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 ${
+                  className={`h-12 w-full rounded-xl border bg-[#0b1324]/80 px-4 text-sm text-white outline-none transition focus:border-violet-400/60 focus:ring-4 focus:ring-violet-500/10 disabled:cursor-not-allowed disabled:opacity-60 ${
                     errors.requestedRoleId
-                      ? "border-red-400"
-                      : "border-slate-200"
+                      ? "border-red-400/70"
+                      : "border-white/[0.09]"
                   }`}
                 >
-                  <option value={0}>
+                  <option value={0} className="bg-[#101a30]">
                     {rolesLoading
                       ? "Loading available roles..."
                       : rolesError
@@ -344,63 +341,62 @@ export default function RegisterPage() {
                   </option>
 
                   {roles.map((role) => (
-                    <option key={role.id} value={role.id}>
+                    <option
+                      key={role.id}
+                      value={role.id}
+                      className="bg-[#101a30]"
+                    >
                       {role.name}
                     </option>
                   ))}
                 </select>
 
                 {errors.requestedRoleId && (
-                  <p className="mt-1 text-xs text-red-500">
+                  <p className="mt-1.5 text-xs text-red-400">
                     {errors.requestedRoleId.message}
                   </p>
                 )}
 
                 {rolesError && (
-                  <p className="mt-1 text-xs text-red-500">
+                  <p className="mt-1.5 text-xs text-red-400">
                     {rolesError}
                   </p>
                 )}
 
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-2 flex items-center gap-1.5 text-[11px] text-slate-500">
+                  <ShieldCheck size={13} className="text-amber-400" />
                   Your selected role requires Admin approval.
                 </p>
               </div>
 
               {/* PASSWORD */}
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  Password
-                </label>
-
+                <label className={labelClass}>Password</label>
                 <div className="relative">
                   <LockKeyhole
                     size={18}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
                   />
-
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Create a password"
                     autoComplete="new-password"
                     {...register("password")}
                     className={`${inputClass} pr-12 ${
-                      errors.password ? "border-red-400" : ""
+                      errors.password ? "border-red-400/70" : ""
                     }`}
                   />
-
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 transition hover:text-violet-300"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
-
                 {errors.password && (
-                  <p className="mt-1 text-xs text-red-500">
+                  <p className="mt-1.5 text-xs text-red-400">
                     {errors.password.message}
                   </p>
                 )}
@@ -408,32 +404,27 @@ export default function RegisterPage() {
 
               {/* CONFIRM PASSWORD */}
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  Confirm Password
-                </label>
-
+                <label className={labelClass}>Confirm Password</label>
                 <div className="relative">
                   <LockKeyhole
                     size={18}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
                   />
-
                   <input
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm your password"
                     autoComplete="new-password"
                     {...register("confirmPassword")}
                     className={`${inputClass} pr-12 ${
-                      errors.confirmPassword ? "border-red-400" : ""
+                      errors.confirmPassword ? "border-red-400/70" : ""
                     }`}
                   />
-
                   <button
                     type="button"
                     onClick={() =>
                       setShowConfirmPassword(!showConfirmPassword)
                     }
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 transition hover:text-violet-300"
                     aria-label={
                       showConfirmPassword
                         ? "Hide confirm password"
@@ -447,9 +438,8 @@ export default function RegisterPage() {
                     )}
                   </button>
                 </div>
-
                 {errors.confirmPassword && (
-                  <p className="mt-1 text-xs text-red-500">
+                  <p className="mt-1.5 text-xs text-red-400">
                     {errors.confirmPassword.message}
                   </p>
                 )}
@@ -459,30 +449,36 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={isLoading || rolesLoading || !!rolesError}
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-violet-950/30 transition hover:-translate-y-0.5 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
               >
-                {isLoading ? "Creating Account..." : "Create Account"}
-
-                {!isLoading && <ArrowRight size={18} />}
+                {isLoading ? (
+                  <>
+                    <LoaderCircle size={18} className="animate-spin" />
+                    Creating Account...
+                  </>
+                ) : (
+                  <>
+                    Create Account
+                    <ArrowRight size={18} />
+                  </>
+                )}
               </button>
-
             </form>
 
-            <p className="mt-7 text-center text-sm text-slate-600">
+            <p className="mt-7 text-center text-sm text-slate-400">
               Already have an account?{" "}
               <Link
                 href="/"
-                className="font-semibold text-blue-600 hover:text-blue-700"
+                className="font-semibold text-violet-400 transition hover:text-violet-300"
               >
                 Sign in
               </Link>
             </p>
 
-            <div className="mt-7 flex items-center justify-center gap-2 text-xs text-slate-400">
-              <ShieldCheck size={15} />
+            <div className="mt-7 flex items-center justify-center gap-2 text-xs text-slate-500">
+              <ShieldCheck size={15} className="text-emerald-400" />
               Your account is protected by secure authentication.
             </div>
-
           </div>
         </section>
       </div>

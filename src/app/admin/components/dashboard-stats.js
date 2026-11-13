@@ -8,6 +8,7 @@ import {
   FolderKanban,
   ClipboardList,
   Loader2,
+  TrendingUp,
 } from "lucide-react";
 
 const initialStats = {
@@ -65,32 +66,40 @@ export default function DashboardStats() {
       title: "Total Employees",
       value: stats.totalEmployees,
       icon: Users,
-      color: "bg-blue-100 text-blue-600",
+      gradient: "from-blue-500 to-cyan-400",
+      glow: "shadow-blue-500/10",
+      description: "Registered workforce",
     },
     {
       title: "Pending Approvals",
       value: stats.pendingApprovals,
       icon: UserCheck,
-      color: "bg-amber-100 text-amber-600",
+      gradient: "from-amber-500 to-orange-400",
+      glow: "shadow-orange-500/10",
+      description: "Awaiting review",
     },
     {
       title: "Active Projects",
       value: stats.activeProjects,
       icon: FolderKanban,
-      color: "bg-purple-100 text-purple-600",
+      gradient: "from-violet-500 to-fuchsia-400",
+      glow: "shadow-violet-500/10",
+      description: "Ongoing projects",
     },
     {
       title: "Total Tasks",
       value: stats.totalTasks,
       icon: ClipboardList,
-      color: "bg-emerald-100 text-emerald-600",
+      gradient: "from-emerald-500 to-teal-400",
+      glow: "shadow-emerald-500/10",
+      description: "Tasks in workspace",
     },
   ];
 
   return (
     <section>
       {error && (
-        <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+        <p className="mb-4 rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
           {error}
         </p>
       )}
@@ -102,29 +111,40 @@ export default function DashboardStats() {
           return (
             <div
               key={card.title}
-              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+              className={`group relative overflow-hidden rounded-2xl border border-white/[0.09] bg-white/[0.045] p-5 shadow-xl ${card.glow} backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.07]`}
             >
-              <div className="flex items-center justify-between">
+              <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/[0.035] blur-2xl transition group-hover:bg-white/[0.08]" />
+
+              <div className="relative flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-sm font-medium text-slate-500">
+                  <p className="text-sm font-medium text-slate-400">
                     {card.title}
                   </p>
 
-                  <h3 className="mt-3 text-3xl font-bold text-slate-800">
+                  <h3 className="mt-4 text-3xl font-bold tracking-tight text-white">
                     {loading ? (
-                      <Loader2 className="h-7 w-7 animate-spin text-slate-400" />
+                      <Loader2 className="h-8 w-8 animate-spin text-slate-500" />
                     ) : (
                       card.value
                     )}
                   </h3>
+
+                  <p className="mt-3 flex items-center gap-1.5 text-xs text-slate-500">
+                    <TrendingUp size={13} className="text-emerald-400" />
+                    {card.description}
+                  </p>
                 </div>
 
                 <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-xl ${card.color}`}
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${card.gradient} text-white shadow-lg`}
                 >
-                  <Icon size={23} />
+                  <Icon size={22} />
                 </div>
               </div>
+
+              <div
+                className={`absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r ${card.gradient} transition-all duration-500 group-hover:w-full`}
+              />
             </div>
           );
         })}

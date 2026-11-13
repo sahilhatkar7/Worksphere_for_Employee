@@ -14,6 +14,9 @@ import {
   BriefcaseBusiness,
   ShieldCheck,
   AlertCircle,
+  UserRoundCheck,
+  Sparkles,
+  UserRound,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -44,38 +47,38 @@ export default function ApprovalsPage() {
     }
   }, []);
 
-useEffect(() => {
-  const controller = new AbortController();
+  useEffect(() => {
+    const controller = new AbortController();
 
-  async function loadApprovals() {
-    try {
-      const response = await fetch("/api/admin/pending-approvals", {
-        cache: "no-store",
-        signal: controller.signal,
-      });
+    async function loadApprovals() {
+      try {
+        const response = await fetch("/api/admin/pending-approvals", {
+          cache: "no-store",
+          signal: controller.signal,
+        });
 
-      const result = await response.json();
+        const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(result.message || "Unable to load approvals.");
-      }
+        if (!response.ok) {
+          throw new Error(result.message || "Unable to load approvals.");
+        }
 
-      setUsers(result.users || []);
-    } catch (error) {
-      if (error.name !== "AbortError") {
-        toast.error(error.message || "Something went wrong.");
-      }
-    } finally {
-      if (!controller.signal.aborted) {
-        setIsLoading(false);
+        setUsers(result.users || []);
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          toast.error(error.message || "Something went wrong.");
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
       }
     }
-  }
 
-  loadApprovals();
+    loadApprovals();
 
-  return () => controller.abort();
-}, []);
+    return () => controller.abort();
+  }, []);
 
   async function handleAction(userId, action) {
     const actionName = action === "approve" ? "approve" : "reject";
@@ -112,141 +115,179 @@ useEffect(() => {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-10">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+    <main className="relative min-h-screen overflow-hidden bg-[#080d1b] px-4 py-7 text-white sm:px-6 lg:px-10">
+      {/* Background Effects */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-violet-600/10 blur-[120px]" />
+        <div className="absolute -right-40 top-40 h-96 w-96 rounded-full bg-blue-600/10 blur-[120px]" />
+        <div className="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-cyan-500/[0.06] blur-[120px]" />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-7xl">
+        {/* Header */}
+        <div className="mb-9 flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
           <div>
             <Link
               href="/admin"
-              className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-blue-600"
+              className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-slate-400 transition hover:text-violet-300"
             >
               <ArrowLeft size={16} />
               Back to Dashboard
             </Link>
 
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-              Pending Approvals
-            </h1>
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-violet-400/20 bg-gradient-to-br from-violet-500/20 to-blue-500/10 text-violet-300">
+                <UserRoundCheck size={23} />
+              </div>
 
-            <p className="mt-2 text-sm text-slate-500">
-              Review and manage new employee registration requests.
-            </p>
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                  Pending Approvals
+                </h1>
+                <p className="mt-1 text-sm text-slate-400">
+                  Review and manage new registration requests.
+                </p>
+              </div>
+            </div>
           </div>
 
           <button
+            type="button"
             onClick={fetchApprovals}
             disabled={isLoading}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-slate-300 transition hover:border-violet-400/30 hover:bg-violet-500/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
             <RefreshCw
               size={16}
               className={isLoading ? "animate-spin" : ""}
             />
-            Refresh
+            Refresh Requests
           </button>
         </div>
 
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        {/* Statistics */}
+        <div className="mb-7 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="rounded-2xl border border-white/10 bg-[#101a30]/75 p-5 shadow-xl shadow-black/10 backdrop-blur-xl">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-500">
+                <p className="text-sm font-medium text-slate-400">
                   Pending Requests
                 </p>
-                <p className="mt-2 text-3xl font-bold text-slate-900">
+                <p className="mt-2 text-3xl font-bold text-white">
                   {users.length}
                 </p>
+                <p className="mt-1 text-xs text-slate-500">
+                  Awaiting administrator review
+                </p>
               </div>
-              <div className="rounded-xl bg-amber-50 p-3 text-amber-600">
+
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-500/10 text-amber-300">
                 <Clock3 size={23} />
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-white/10 bg-[#101a30]/75 p-5 shadow-xl shadow-black/10 backdrop-blur-xl">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-500">
+                <p className="text-sm font-medium text-slate-400">
                   Approval Status
                 </p>
-                <p className="mt-2 text-lg font-bold text-slate-900">
+                <p className="mt-2 text-xl font-bold text-white">
                   Awaiting Review
                 </p>
+                <p className="mt-1 text-xs text-slate-500">
+                  Registration access control
+                </p>
               </div>
-              <div className="rounded-xl bg-blue-50 p-3 text-blue-600">
+
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-blue-400/20 bg-blue-500/10 text-blue-300">
                 <ShieldCheck size={23} />
               </div>
             </div>
           </div>
         </div>
 
-        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="flex items-center gap-3 border-b border-slate-100 px-5 py-5 sm:px-6">
-            <div className="rounded-xl bg-blue-50 p-2.5 text-blue-600">
-              <Users size={21} />
+        {/* Requests Panel */}
+        <section className="overflow-hidden rounded-2xl border border-white/10 bg-[#101a30]/75 shadow-xl shadow-black/10 backdrop-blur-xl">
+          <div className="flex items-center justify-between gap-3 border-b border-white/[0.07] px-5 py-5 sm:px-7">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-violet-400/20 bg-violet-500/10 text-violet-300">
+                <Users size={20} />
+              </div>
+
+              <div>
+                <h2 className="font-semibold text-white">
+                  Registration Requests
+                </h2>
+                <p className="mt-1 text-xs text-slate-500">
+                  Review applicants before granting access.
+                </p>
+              </div>
             </div>
 
-            <div>
-              <h2 className="font-semibold text-slate-900">
-                Registration Requests
-              </h2>
-              <p className="text-xs text-slate-500">
-                Review each applicant before granting access.
-              </p>
-            </div>
+            <span className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-slate-400">
+              {users.length} Requests
+            </span>
           </div>
 
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-20">
-              <RefreshCw
-                size={28}
-                className="animate-spin text-blue-600"
-              />
-              <p className="mt-3 text-sm text-slate-500">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10">
+                <RefreshCw
+                  size={25}
+                  className="animate-spin text-violet-400"
+                />
+              </div>
+
+              <p className="mt-4 text-sm text-slate-400">
                 Loading registration requests...
               </p>
             </div>
           ) : users.length === 0 ? (
             <div className="flex flex-col items-center justify-center px-4 py-20 text-center">
-              <div className="rounded-full bg-emerald-50 p-4 text-emerald-600">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-500/10 text-emerald-400">
                 <CheckCircle2 size={32} />
               </div>
-              <h3 className="mt-4 font-semibold text-slate-900">
+
+              <h3 className="mt-5 text-base font-semibold text-white">
                 All caught up!
               </h3>
-              <p className="mt-1 text-sm text-slate-500">
-                There are no pending registration requests.
+
+              <p className="mt-2 max-w-sm text-sm leading-6 text-slate-500">
+                There are no pending registration requests. New requests will
+                appear here when users register.
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-white/[0.06]">
               {users.map((user) => (
                 <div
                   key={user.id}
-                  className="flex flex-col gap-5 p-5 transition hover:bg-slate-50/70 sm:p-6 lg:flex-row lg:items-center lg:justify-between"
+                  className="flex flex-col justify-between gap-5 p-5 transition hover:bg-white/[0.025] sm:p-6 lg:flex-row lg:items-center"
                 >
                   <div className="flex min-w-0 items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-lg font-bold text-blue-700">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-violet-400/20 bg-gradient-to-br from-violet-500/20 to-blue-500/10 text-lg font-bold text-violet-300">
                       {user.fullName?.charAt(0)?.toUpperCase() || "U"}
                     </div>
 
-                    <div className="min-w-0">
-                      <h3 className="truncate font-semibold text-slate-900">
-                        {user.fullName}
+                    <div className="min-w-0 flex-1">
+                      <h3 className="truncate font-semibold text-white">
+                        {user.fullName || "Unnamed User"}
                       </h3>
 
-                      <p className="mt-1 flex items-center gap-2 break-all text-sm text-slate-500">
-                        <Mail size={14} className="shrink-0" />
+                      <p className="mt-1 flex min-w-0 items-center gap-2 break-all text-sm text-slate-400">
+                        <Mail size={14} className="shrink-0 text-slate-500" />
                         {user.email}
                       </p>
 
                       <div className="mt-3 flex flex-wrap items-center gap-2">
-                        <span className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">
+                        <span className="inline-flex items-center gap-1.5 rounded-lg border border-blue-400/15 bg-blue-500/10 px-3 py-1.5 text-xs font-semibold text-blue-300">
                           <BriefcaseBusiness size={13} />
                           {user.requestedRoleName || "Role not specified"}
                         </span>
 
-                        <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700">
+                        <span className="inline-flex items-center gap-1.5 rounded-lg border border-amber-400/15 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-300">
                           <Clock3 size={13} />
                           Pending
                         </span>
@@ -256,18 +297,24 @@ useEffect(() => {
 
                   <div className="flex flex-wrap gap-3 lg:shrink-0">
                     <button
+                      type="button"
                       onClick={() => handleAction(user.id, "approve")}
                       disabled={processingId !== null}
-                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-5 py-2.5 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
                     >
-                      <CheckCircle2 size={16} />
+                      {processingId === user.id ? (
+                        <RefreshCw size={16} className="animate-spin" />
+                      ) : (
+                        <CheckCircle2 size={16} />
+                      )}
                       Approve
                     </button>
 
                     <button
+                      type="button"
                       onClick={() => handleAction(user.id, "reject")}
                       disabled={processingId !== null}
-                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-rose-400/20 bg-rose-500/10 px-5 py-2.5 text-sm font-semibold text-rose-300 transition hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
                     >
                       <XCircle size={16} />
                       Reject
@@ -279,12 +326,23 @@ useEffect(() => {
           )}
         </section>
 
-        <div className="mt-5 flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-800">
-          <AlertCircle size={18} className="mt-0.5 shrink-0" />
-          <p>
+        {/* Information */}
+        <div className="mt-6 flex items-start gap-3 rounded-xl border border-blue-400/15 bg-blue-500/[0.06] p-4">
+          <AlertCircle
+            size={19}
+            className="mt-0.5 shrink-0 text-blue-300"
+          />
+
+          <p className="text-xs leading-6 text-slate-400">
             Approved users receive access with their requested role.
             Rejected registrations will no longer appear in this list.
+            Review each registration carefully before taking action.
           </p>
+        </div>
+
+        <div className="mt-8 flex items-center justify-center gap-2 text-xs text-slate-600">
+          <Sparkles size={13} className="text-violet-400" />
+          WorkSphere Administration · Access Management
         </div>
       </div>
     </main>

@@ -15,6 +15,10 @@ import {
   X,
   Save,
   ArrowLeft,
+  CalendarDays,
+  BriefcaseBusiness,
+  Activity,
+  LoaderCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -54,7 +58,7 @@ export default function EmployeesPage() {
     }
   }, []);
 
-  // Fetch employees and roles when page loads
+  // Initial employees and roles loading
   useEffect(() => {
     const controller = new AbortController();
 
@@ -83,9 +87,7 @@ export default function EmployeesPage() {
         }
 
         if (!roleResponse.ok) {
-          throw new Error(
-            roleResult.message || "Unable to fetch roles."
-          );
+          throw new Error(roleResult.message || "Unable to fetch roles.");
         }
 
         setEmployees(employeeResult.employees || []);
@@ -112,8 +114,8 @@ export default function EmployeesPage() {
       const searchText = search.toLowerCase();
 
       const matchesSearch =
-        employee.fullName.toLowerCase().includes(searchText) ||
-        employee.email.toLowerCase().includes(searchText);
+        String(employee.fullName || "").toLowerCase().includes(searchText) ||
+        String(employee.email || "").toLowerCase().includes(searchText);
 
       const matchesRole =
         roleFilter === "All" || employee.roleName === roleFilter;
@@ -207,54 +209,76 @@ export default function EmployeesPage() {
   const inactiveCount = employees.length - activeCount;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-7xl space-y-6">
+    <main className="relative min-h-screen overflow-hidden bg-[#080d1b] px-4 py-6 text-slate-100 sm:px-6 lg:px-8">
+      {/* Background effects */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-violet-600/10 blur-[120px]" />
+        <div className="absolute -right-40 top-40 h-96 w-96 rounded-full bg-cyan-500/10 blur-[120px]" />
+        <div className="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-blue-600/10 blur-[120px]" />
+      </div>
+
+      <div className="relative mx-auto max-w-7xl space-y-7">
 
         {/* Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
           <div>
             <Link
               href="/admin"
-              className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-indigo-600"
+              className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-slate-400 transition hover:text-violet-300"
             >
               <ArrowLeft size={16} />
               Back to Dashboard
             </Link>
 
-            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
-              Employee Management
-            </h1>
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-violet-300">
+                <Users size={24} />
+              </div>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Manage employee information, roles and account status.
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-300">
+                  Administration
+                </p>
+
+                <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                  Employee Management
+                </h1>
+              </div>
+            </div>
+
+            <p className="mt-3 max-w-xl text-sm text-slate-400">
+              Manage your workforce, employee information, assigned roles and
+              account access from one place.
             </p>
           </div>
 
           <button
             onClick={fetchEmployees}
             disabled={isRefreshing}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-60"
+            className="inline-flex items-center justify-center gap-2 self-start rounded-xl border border-white/10 bg-white/[0.06] px-5 py-3 text-sm font-semibold text-slate-200 shadow-lg shadow-black/10 backdrop-blur-xl transition hover:border-violet-400/40 hover:bg-violet-500/10 disabled:cursor-not-allowed disabled:opacity-50 sm:self-center"
           >
             <RefreshCw
               size={17}
               className={isRefreshing ? "animate-spin" : ""}
             />
-            Refresh
+            Refresh Data
           </button>
-        </div>
+        </header>
 
         {/* Statistics */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <StatCard
             title="Total Employees"
             value={employees.length}
+            subtitle="Registered workforce"
             icon={<Users size={21} />}
-            color="indigo"
+            color="violet"
           />
 
           <StatCard
             title="Active Employees"
             value={activeCount}
+            subtitle="Accounts currently active"
             icon={<UserCheck size={21} />}
             color="emerald"
           />
@@ -262,19 +286,27 @@ export default function EmployeesPage() {
           <StatCard
             title="Inactive Employees"
             value={inactiveCount}
+            subtitle="Accounts currently inactive"
             icon={<UserX size={21} />}
             color="rose"
           />
-        </div>
+        </section>
 
         {/* Search and Filters */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-          <div className="grid gap-3 md:grid-cols-3">
+        <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 shadow-xl shadow-black/10 backdrop-blur-xl">
+          <div className="mb-4 flex items-center gap-2">
+            <Activity size={18} className="text-violet-300" />
 
-            <div className="relative md:col-span-1">
+            <h2 className="font-semibold text-white">
+              Search & Filters
+            </h2>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="relative">
               <Search
                 size={18}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"
               />
 
               <input
@@ -282,14 +314,14 @@ export default function EmployeesPage() {
                 placeholder="Search name or email..."
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                className="w-full rounded-xl border border-slate-200 py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                className="w-full rounded-xl border border-white/10 bg-[#0b1324] py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-violet-400/50 focus:ring-2 focus:ring-violet-500/10"
               />
             </div>
 
             <select
               value={roleFilter}
               onChange={(event) => setRoleFilter(event.target.value)}
-              className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-500"
+              className="w-full rounded-xl border border-white/10 bg-[#0b1324] px-4 py-3 text-sm text-slate-200 outline-none transition focus:border-violet-400/50"
             >
               <option value="All">All Roles</option>
 
@@ -303,72 +335,85 @@ export default function EmployeesPage() {
             <select
               value={statusFilter}
               onChange={(event) => setStatusFilter(event.target.value)}
-              className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-indigo-500"
+              className="w-full rounded-xl border border-white/10 bg-[#0b1324] px-4 py-3 text-sm text-slate-200 outline-none transition focus:border-violet-400/50"
             >
               <option value="All">All Status</option>
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
             </select>
-
           </div>
-        </div>
+
+          {(search || roleFilter !== "All" || statusFilter !== "All") && (
+            <button
+              onClick={() => {
+                setSearch("");
+                setRoleFilter("All");
+                setStatusFilter("All");
+              }}
+              className="mt-4 text-xs font-semibold text-violet-300 transition hover:text-violet-200"
+            >
+              Clear all filters
+            </button>
+          )}
+        </section>
 
         {/* Employee Table */}
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-
-          <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+        <section className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] shadow-xl shadow-black/10 backdrop-blur-xl">
+          <div className="flex flex-col justify-between gap-3 border-b border-white/10 px-5 py-5 sm:flex-row sm:items-center">
             <div>
-              <h2 className="font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-white">
                 All Employees
               </h2>
 
-              <p className="mt-1 text-xs text-slate-500">
-                {filteredEmployees.length} employees found
+              <p className="mt-1 text-xs text-slate-400">
+                Showing {filteredEmployees.length} of {employees.length} employees
               </p>
             </div>
 
-            <ShieldCheck size={21} className="text-indigo-500" />
+            <div className="flex items-center gap-2 self-start rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1.5 text-xs font-semibold text-violet-300">
+              <ShieldCheck size={15} />
+              Workforce Directory
+            </div>
           </div>
 
           {isLoading ? (
-            <div className="p-12 text-center text-sm text-slate-500">
-              Loading employees...
+            <div className="flex flex-col items-center justify-center gap-3 p-16 text-slate-400">
+              <LoaderCircle size={30} className="animate-spin text-violet-400" />
+              <p className="text-sm">Loading employee directory...</p>
             </div>
           ) : filteredEmployees.length === 0 ? (
-            <div className="p-12 text-center">
-              <Users
-                size={35}
-                className="mx-auto mb-3 text-slate-300"
-              />
+            <div className="flex flex-col items-center justify-center px-5 py-16 text-center">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-slate-500">
+                <Users size={30} />
+              </div>
 
-              <p className="font-semibold text-slate-700">
+              <p className="font-semibold text-white">
                 No employees found
               </p>
 
-              <p className="mt-1 text-sm text-slate-500">
-                Try changing your search or filters.
+              <p className="mt-2 text-sm text-slate-400">
+                Try changing your search or filter settings.
               </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[850px] text-left text-sm">
-
-                <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+                <thead className="bg-white/[0.03] text-xs uppercase tracking-wider text-slate-500">
                   <tr>
                     <th className="px-5 py-4 font-semibold">
                       Employee
                     </th>
 
                     <th className="px-5 py-4 font-semibold">
-                      Role
+                      Assigned Role
                     </th>
 
                     <th className="px-5 py-4 font-semibold">
-                      Status
+                      Account Status
                     </th>
 
                     <th className="px-5 py-4 font-semibold">
-                      Joined
+                      Joined Date
                     </th>
 
                     <th className="px-5 py-4 text-right font-semibold">
@@ -377,21 +422,23 @@ export default function EmployeesPage() {
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-white/[0.06]">
                   {filteredEmployees.map((employee) => (
                     <tr
                       key={employee.id}
-                      className="hover:bg-slate-50/70"
+                      className="transition hover:bg-white/[0.035]"
                     >
+                      {/* Employee */}
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
-
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 font-bold text-indigo-600">
-                            {employee.fullName.charAt(0).toUpperCase()}
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-violet-400/20 bg-gradient-to-br from-violet-500/20 to-blue-500/20 text-base font-bold text-violet-200">
+                            {String(employee.fullName || "U")
+                              .charAt(0)
+                              .toUpperCase()}
                           </div>
 
                           <div>
-                            <p className="font-semibold text-slate-800">
+                            <p className="font-semibold text-slate-100">
                               {employee.fullName}
                             </p>
 
@@ -400,37 +447,57 @@ export default function EmployeesPage() {
                               {employee.email}
                             </p>
                           </div>
-
                         </div>
                       </td>
 
+                      {/* Role */}
                       <td className="px-5 py-4">
-                        <span className="rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700">
+                        <span className="inline-flex items-center gap-2 rounded-lg border border-violet-400/15 bg-violet-500/10 px-3 py-1.5 text-xs font-semibold text-violet-300">
+                          <BriefcaseBusiness size={13} />
                           {employee.roleName}
                         </span>
                       </td>
 
+                      {/* Status */}
                       <td className="px-5 py-4">
                         <span
-                          className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
+                          className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold ${
                             employee.isActive
-                              ? "bg-emerald-50 text-emerald-700"
-                              : "bg-rose-50 text-rose-700"
+                              ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-300"
+                              : "border-rose-400/20 bg-rose-500/10 text-rose-300"
                           }`}
                         >
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full ${
+                              employee.isActive
+                                ? "bg-emerald-400"
+                                : "bg-rose-400"
+                            }`}
+                          />
                           {employee.isActive ? "Active" : "Inactive"}
                         </span>
                       </td>
 
-                      <td className="px-5 py-4 text-slate-500">
-                        {new Date(
-                          employee.createdAt
-                        ).toLocaleDateString()}
+                      {/* Joined */}
+                      <td className="px-5 py-4 text-slate-400">
+                        <span className="flex items-center gap-2 text-xs">
+                          <CalendarDays size={14} className="text-slate-500" />
+                          {employee.createdAt
+                            ? new Date(employee.createdAt).toLocaleDateString(
+                                "en-IN",
+                                {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                }
+                              )
+                            : "—"}
+                        </span>
                       </td>
 
+                      {/* Actions */}
                       <td className="px-5 py-4">
                         <div className="flex justify-end gap-2">
-
                           <button
                             onClick={() =>
                               setEditingEmployee({
@@ -438,8 +505,9 @@ export default function EmployeesPage() {
                                 roleId: String(employee.roleId),
                               })
                             }
-                            className="rounded-lg border border-slate-200 p-2 text-slate-600 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
+                            className="rounded-xl border border-white/10 bg-white/[0.05] p-2.5 text-slate-400 transition hover:border-violet-400/30 hover:bg-violet-500/10 hover:text-violet-300"
                             title="Edit employee"
+                            aria-label={`Edit ${employee.fullName}`}
                           >
                             <Pencil size={16} />
                           </button>
@@ -447,56 +515,62 @@ export default function EmployeesPage() {
                           <button
                             onClick={() => handleStatusChange(employee)}
                             disabled={updatingId === employee.id}
-                            className={`rounded-lg border p-2 transition disabled:opacity-50 ${
+                            className={`rounded-xl border p-2.5 transition disabled:cursor-not-allowed disabled:opacity-50 ${
                               employee.isActive
-                                ? "border-rose-200 text-rose-600 hover:bg-rose-50"
-                                : "border-emerald-200 text-emerald-600 hover:bg-emerald-50"
+                                ? "border-rose-400/20 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20"
+                                : "border-emerald-400/20 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"
                             }`}
                             title={
                               employee.isActive
                                 ? "Deactivate employee"
                                 : "Activate employee"
                             }
+                            aria-label={
+                              employee.isActive
+                                ? `Deactivate ${employee.fullName}`
+                                : `Activate ${employee.fullName}`
+                            }
                           >
-                            {employee.isActive ? (
+                            {updatingId === employee.id ? (
+                              <LoaderCircle size={16} className="animate-spin" />
+                            ) : employee.isActive ? (
                               <UserX size={16} />
                             ) : (
                               <UserCheck size={16} />
                             )}
                           </button>
-
                         </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
-
               </table>
             </div>
           )}
-
-        </div>
+        </section>
 
         {/* Edit Employee Modal */}
         {editingEmployee && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
-
-            <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
-
-              <div className="mb-6 flex items-center justify-between">
+          <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm">
+            <div className="my-auto w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-[#101a30] shadow-2xl shadow-black/40">
+              <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-violet-300">
+                    Employee Profile
+                  </p>
+
+                  <h2 className="mt-1 text-xl font-bold text-white">
                     Edit Employee
                   </h2>
 
-                  <p className="mt-1 text-sm text-slate-500">
-                    Update employee details and role.
+                  <p className="mt-1 text-xs text-slate-400">
+                    Update employee details and assigned role.
                   </p>
                 </div>
 
                 <button
                   onClick={() => setEditingEmployee(null)}
-                  className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+                  className="rounded-xl border border-white/10 bg-white/[0.05] p-2 text-slate-400 transition hover:bg-white/10 hover:text-white"
                   aria-label="Close edit form"
                 >
                   <X size={20} />
@@ -505,12 +579,11 @@ export default function EmployeesPage() {
 
               <form
                 onSubmit={handleUpdateEmployee}
-                className="space-y-4"
+                className="space-y-5 p-6"
               >
-
                 {/* Full Name */}
                 <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                  <label className="mb-2 block text-sm font-semibold text-slate-300">
                     Full Name
                   </label>
 
@@ -525,13 +598,13 @@ export default function EmployeesPage() {
                         fullName: event.target.value,
                       })
                     }
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-indigo-500"
+                    className="w-full rounded-xl border border-white/10 bg-[#0b1324] px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-violet-400/50 focus:ring-2 focus:ring-violet-500/10"
                   />
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                  <label className="mb-2 block text-sm font-semibold text-slate-300">
                     Email Address
                   </label>
 
@@ -546,13 +619,13 @@ export default function EmployeesPage() {
                         email: event.target.value,
                       })
                     }
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-indigo-500"
+                    className="w-full rounded-xl border border-white/10 bg-[#0b1324] px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-violet-400/50 focus:ring-2 focus:ring-violet-500/10"
                   />
                 </div>
 
-                {/* Role Dropdown */}
+                {/* Role */}
                 <div>
-                  <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                  <label className="mb-2 block text-sm font-semibold text-slate-300">
                     Assigned Role
                   </label>
 
@@ -565,23 +638,26 @@ export default function EmployeesPage() {
                         roleId: event.target.value,
                       })
                     }
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-indigo-500"
+                    className="w-full rounded-xl border border-white/10 bg-[#0b1324] px-4 py-3 text-sm text-white outline-none transition focus:border-violet-400/50"
                   >
                     {roles.map((role) => (
-                      <option key={role.id} value={role.id}>
+                      <option
+                        key={role.id}
+                        value={role.id}
+                        className="bg-[#101a30]"
+                      >
                         {role.name}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                {/* Form Buttons */}
-                <div className="flex gap-3 pt-3">
-
+                {/* Buttons */}
+                <div className="flex flex-col-reverse gap-3 border-t border-white/10 pt-5 sm:flex-row">
                   <button
                     type="button"
                     onClick={() => setEditingEmployee(null)}
-                    className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                    className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10"
                   >
                     Cancel
                   </button>
@@ -589,48 +665,75 @@ export default function EmployeesPage() {
                   <button
                     type="submit"
                     disabled={isSaving || roles.length === 0}
-                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-900/20 transition hover:from-violet-500 hover:to-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <Save size={16} />
+                    {isSaving ? (
+                      <LoaderCircle size={17} className="animate-spin" />
+                    ) : (
+                      <Save size={17} />
+                    )}
 
                     {isSaving ? "Saving..." : "Save Changes"}
                   </button>
-
                 </div>
-
               </form>
             </div>
           </div>
         )}
-
       </div>
-    </div>
+    </main>
   );
 }
 
-// Statistics Card Component
-function StatCard({ title, value, icon, color }) {
+// Statistics Card
+function StatCard({ title, value, subtitle, icon, color }) {
   const colorClasses = {
-    indigo: "bg-indigo-50 text-indigo-600",
-    emerald: "bg-emerald-50 text-emerald-600",
-    rose: "bg-rose-50 text-rose-600",
+    violet: {
+      icon: "border-violet-400/20 bg-violet-500/10 text-violet-300",
+      glow: "bg-violet-500/10",
+      value: "text-violet-200",
+    },
+    emerald: {
+      icon: "border-emerald-400/20 bg-emerald-500/10 text-emerald-300",
+      glow: "bg-emerald-500/10",
+      value: "text-emerald-200",
+    },
+    rose: {
+      icon: "border-rose-400/20 bg-rose-500/10 text-rose-300",
+      glow: "bg-rose-500/10",
+      value: "text-rose-200",
+    },
   };
 
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-slate-500">
-          {title}
-        </p>
+  const styles = colorClasses[color];
 
-        <div className={`rounded-xl p-3 ${colorClasses[color]}`}>
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 shadow-xl shadow-black/10 backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-white/20">
+      <div
+        className={`pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full blur-3xl ${styles.glow}`}
+      />
+
+      <div className="relative flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-slate-400">
+            {title}
+          </p>
+
+          <p className={`mt-3 text-3xl font-bold ${styles.value}`}>
+            {value}
+          </p>
+
+          <p className="mt-2 text-xs text-slate-500">
+            {subtitle}
+          </p>
+        </div>
+
+        <div
+          className={`flex h-12 w-12 items-center justify-center rounded-xl border ${styles.icon}`}
+        >
           {icon}
         </div>
       </div>
-
-      <p className="mt-4 text-3xl font-bold text-slate-900">
-        {value}
-      </p>
     </div>
   );
 }
