@@ -108,26 +108,31 @@ export default function EmployeesPage() {
     return () => controller.abort();
   }, []);
 
-  // Search and filter employees
-  const filteredEmployees = useMemo(() => {
-    return employees.filter((employee) => {
-      const searchText = search.toLowerCase();
 
-      const matchesSearch =
-        String(employee.fullName || "").toLowerCase().includes(searchText) ||
-        String(employee.email || "").toLowerCase().includes(searchText);
+// Search and filter employees
+const filteredEmployees = useMemo(() => {
+  const searchText = search.trim().toLowerCase();
 
-      const matchesRole =
-        roleFilter === "All" || employee.roleName === roleFilter;
+  return employees.filter((employee) => {
+    const matchesSearch =
+      !searchText ||
+      String(employee.fullName || "").toLowerCase().includes(searchText) ||
+      String(employee.email || "").toLowerCase().includes(searchText) ||
+      String(employee.roleName || "").toLowerCase().includes(searchText) ||
+      String(employee.id || "").includes(searchText);
 
-      const matchesStatus =
-        statusFilter === "All" ||
-        (statusFilter === "Active" && employee.isActive) ||
-        (statusFilter === "Inactive" && !employee.isActive);
+    const matchesRole =
+      roleFilter === "All" || employee.roleName === roleFilter;
 
-      return matchesSearch && matchesRole && matchesStatus;
-    });
-  }, [employees, search, roleFilter, statusFilter]);
+    const matchesStatus =
+      statusFilter === "All" ||
+      (statusFilter === "Active" && employee.isActive) ||
+      (statusFilter === "Inactive" && !employee.isActive);
+
+    return matchesSearch && matchesRole && matchesStatus;
+  });
+}, [employees, search, roleFilter, statusFilter]);
+
 
   // Update employee details
   async function handleUpdateEmployee(event) {

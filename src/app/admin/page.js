@@ -12,6 +12,7 @@ import {
   Sparkles,
   ShieldCheck,
 } from "lucide-react";
+import AdminGlobalSearch from "./components/admin-global-search";
 import Link from "next/link";
 import DashboardStats from "./components/dashboard-stats";
 import NotificationBell from "./components/notification-bell";
@@ -101,13 +102,7 @@ export default async function AdminPage() {
             </div>
 
             <div className="flex shrink-0 items-center gap-2 sm:gap-4">
-              <button
-                type="button"
-                aria-label="Search"
-                className="rounded-xl border border-white/[0.08] bg-white/[0.04] p-2.5 text-slate-400 transition hover:bg-white/10 hover:text-white"
-              >
-                <Search size={19} />
-              </button>
+            <AdminGlobalSearch />
 
               <NotificationBell />
 
